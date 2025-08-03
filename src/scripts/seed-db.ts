@@ -1,3 +1,4 @@
+
 import * as admin from 'firebase-admin';
 import { config } from 'dotenv';
 
@@ -68,14 +69,23 @@ async function seedCollection(collectionName: string, data: any[], clear: boolea
   }
 }
 
-async function setCommissioner(userId: string) {
+async function setCommissionerByEmail(email: string) {
     try {
-        const userRef = db.collection('users').doc(userId);
-        await userRef.update({ role: 'commissioner' });
-        console.log(`User ${userId} has been updated to commissioner.`);
+        const usersRef = db.collection('users');
+        const q = usersRef.where('email', '==', email);
+        const snapshot = await q.get();
+
+        if (snapshot.empty) {
+            console.log(`No user found with email ${email}. Please ensure the user has signed up.`);
+            return;
+        }
+        
+        const userDoc = snapshot.docs[0];
+        await userDoc.ref.update({ role: 'commissioner' });
+        console.log(`User ${userDoc.id} (${email}) has been updated to commissioner.`);
+
     } catch (error) {
-        console.error(`Error setting commissioner role for user ${userId}:`, error);
-        console.log(`Note: The user with ID ${userId} may not exist yet. Please sign up with this user first, then re-run the script or manually set the role in Firestore.`);
+        console.error(`Error setting commissioner role for user with email ${email}:`, error);
     }
 }
 
@@ -87,10 +97,8 @@ async function main() {
   await seedCollection('vehicles', vehiclesData);
   await seedCollection('comms', commsData);
   
-  // Set the specific user to be a commissioner
-  // IMPORTANT: Replace 'obY34xqVaFYzrgPfOB50' with the actual document ID of the user
-  // in your Firestore 'users' collection after they have signed up.
-  await setCommissioner('obY34xqVaFYzrgPfOB50');
+  // Set the specific user to be a commissioner by their email
+  await setCommissionerByEmail('harleyphillips331@gmail.com');
 
   console.log('Database seeding complete.');
 }
