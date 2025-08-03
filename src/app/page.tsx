@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -34,13 +35,17 @@ import {
   Shield, 
   LogOut,
   ChevronDown,
-  Settings
+  Settings,
+  BrainCircuit,
+  User as UserIcon,
+  Home
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { IncidentList } from '@/components/dashboard/IncidentList';
 import { RecordsSearch } from '@/components/dashboard/RecordsSearch';
 import { SecureComms } from '@/components/dashboard/SecureComms';
 import { IntelFeed } from '@/components/dashboard/IntelFeed';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function DashboardPage() {
   const { user, loading, logout } = useAuth();
@@ -74,21 +79,61 @@ export default function DashboardPage() {
     }
   }
 
-  return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader>
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-primary rounded-lg text-primary-foreground">
-              <Siren className="h-6 w-6" />
+  const renderDashboard = () => {
+    switch (user.role) {
+      case 'commissioner':
+      case 'user':
+        return (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="col-span-1 lg:col-span-3">
+                <IncidentList />
             </div>
-            <div className="flex flex-col">
-              <h2 className="text-lg font-semibold font-headline">ResponseReady</h2>
-              <p className="text-xs text-muted-foreground">MDT</p>
+            <div className="col-span-1 lg:col-span-2 row-start-2">
+                <RecordsSearch />
+            </div>
+            <div className="col-span-1 lg:col-span-1 row-start-3 lg:row-start-2">
+                <SecureComms />
+            </div>
+            <div className="col-span-1 lg:col-span-3 row-start-4 lg:row-start-3">
+                <IntelFeed />
             </div>
           </div>
-        </SidebarHeader>
-        <SidebarContent>
+        );
+      case 'dispatch':
+        return (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="col-span-1 lg:col-span-3">
+                    <IncidentList />
+                </div>
+                <div className="col-span-1 lg:col-span-2 row-start-2">
+                    <RecordsSearch />
+                </div>
+                <div className="col-span-1 lg:col-span-1 row-start-3 lg:row-start-2">
+                    <SecureComms />
+                </div>
+            </div>
+        );
+        case 'civilian':
+            return (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Welcome, {user.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p>This is your civilian dashboard. There are no active items for you at this time.</p>
+                    </CardContent>
+                </Card>
+            );
+      default:
+        return <div>Invalid user role.</div>;
+    }
+  };
+
+  const renderSidebarMenu = () => {
+    switch(user.role) {
+      case 'commissioner':
+      case 'user':
+        return (
           <SidebarMenu>
             <SidebarMenuItem>
                 <SidebarMenuButton onClick={() => handleMenuClick('dashboard')} isActive={activePage === 'dashboard'} tooltip="Dashboard">
@@ -114,7 +159,76 @@ export default function DashboardPage() {
                 Comms
               </SidebarMenuButton>
             </SidebarMenuItem>
+             <SidebarMenuItem>
+              <SidebarMenuButton tooltip="Intel Feed">
+                <BrainCircuit />
+                Intel Feed
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
+        );
+      case 'dispatch':
+        return (
+            <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton onClick={() => handleMenuClick('dashboard')} isActive={activePage === 'dashboard'} tooltip="Dashboard">
+                        <LayoutDashboard />
+                        Dashboard
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                <SidebarMenuButton tooltip="Active Incidents">
+                    <Siren />
+                    Active Incidents
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                <SidebarMenuButton tooltip="Records">
+                    <Database />
+                    Records
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                <SidebarMenuButton tooltip="Comms">
+                    <MessageSquare />
+                    Comms
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+        );
+        case 'civilian':
+            return (
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton onClick={() => handleMenuClick('dashboard')} isActive={activePage === 'dashboard'} tooltip="Dashboard">
+                            <Home />
+                            Home
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            );
+        default:
+            return null;
+    }
+  }
+
+
+  return (
+    <SidebarProvider>
+      <Sidebar>
+        <SidebarHeader>
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-primary rounded-lg text-primary-foreground">
+              <Siren className="h-6 w-6" />
+            </div>
+            <div className="flex flex-col">
+              <h2 className="text-lg font-semibold font-headline">ResponseReady</h2>
+              <p className="text-xs text-muted-foreground">MDT</p>
+            </div>
+          </div>
+        </SidebarHeader>
+        <SidebarContent>
+         {renderSidebarMenu()}
         </SidebarContent>
         <SidebarFooter>
           {/* Footer content if any */}
@@ -133,7 +247,10 @@ export default function DashboardPage() {
                   <AvatarImage src={`https://placehold.co/100x100.png`} alt={user.name} data-ai-hint="profile avatar" />
                   <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                 </Avatar>
-                <span className="hidden md:inline">{user.name}</span>
+                <div className="flex flex-col items-start">
+                    <span className="hidden md:inline">{user.name}</span>
+                    <span className="hidden md:inline text-xs text-muted-foreground capitalize">{user.role}</span>
+                </div>
                 <ChevronDown className="h-4 w-4 hidden md:inline"/>
               </Button>
             </DropdownMenuTrigger>
@@ -163,20 +280,7 @@ export default function DashboardPage() {
           </DropdownMenu>
         </header>
         <main className="flex-1 p-4 lg:p-6 space-y-6">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <div className="col-span-1 lg:col-span-3">
-                  <IncidentList />
-              </div>
-              <div className="col-span-1 lg:col-span-2 row-start-2">
-                  <RecordsSearch />
-              </div>
-              <div className="col-span-1 lg:col-span-1 row-start-3 lg:row-start-2">
-                  <SecureComms />
-              </div>
-              <div className="col-span-1 lg:col-span-3 row-start-4 lg:row-start-3">
-                  <IntelFeed />
-              </div>
-          </div>
+          {renderDashboard()}
         </main>
       </SidebarInset>
     </SidebarProvider>
