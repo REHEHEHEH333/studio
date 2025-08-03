@@ -45,5 +45,3 @@ export interface Comm {
   message: string;
   timestamp: Timestamp;
 }
-
-    

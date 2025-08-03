@@ -179,5 +179,3 @@ export const addComm = async (data: { unit: string; message: string }): Promise<
     timestamp: serverTimestamp(),
   });
 };
-
-    
