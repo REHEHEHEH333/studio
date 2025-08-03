@@ -5,7 +5,7 @@ export interface UserProfile {
   uid: string;
   email: string;
   name: string;
-  role: 'commissioner' | 'user' | 'civilian' | 'dispatch';
+  role: 'commissioner' | 'user' | 'dispatch';
   password?: string; // Insecure: For demonstration only
 }
 
@@ -17,7 +17,6 @@ export interface Incident {
   status: 'Active' | 'Pending' | 'Resolved';
   timestamp: Timestamp;
   description?: string;
-  reporterId?: string;
 }
 
 export interface Individual {
@@ -26,9 +25,6 @@ export interface Individual {
   dob: string;
   address: string;
   license_status: 'Valid' | 'Suspended' | 'Expired';
-  gunLicenseStatus: 'Valid' | 'Expired' | 'None';
-  insuranceStatus: 'Valid' | 'Expired' | 'None';
-  guns: string[];
 }
 
 export interface Vehicle {

@@ -1,4 +1,5 @@
 
+
 import { db } from './firebase';
 import { collection, doc, getDoc, setDoc, getDocs, query, where, orderBy, limit, onSnapshot, Unsubscribe, addDoc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import type { UserProfile, Incident, Individual, Vehicle, Comm } from '@/types';
@@ -65,32 +66,11 @@ export const getIncidents = (callback: (data: Incident[]) => void): Unsubscribe 
     });
 };
 
-export const getIncidentsByReporter = (reporterId: string, callback: (data: Incident[]) => void): Unsubscribe => {
-    const q = query(
-        collection(db, "incidents"), 
-        where("reporterId", "==", reporterId)
-    );
-    return onSnapshot(q, (querySnapshot) => {
-        const incidents: Incident[] = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            incidents.push({ id: doc.id, ...data } as Incident);
-        });
-        const sortedIncidents = incidents.sort((a, b) => {
-            const timeA = a.timestamp?.toMillis() || 0;
-            const timeB = b.timestamp?.toMillis() || 0;
-            return timeB - timeA;
-        });
-        callback(sortedIncidents);
-    });
-}
-
 export const addIncident = async (data: {
     unit: string;
     type: string;
     location: string;
     description: string;
-    reporterId: string;
   }): Promise<void> => {
     await addDoc(collection(db, 'incidents'), {
       ...data,
@@ -118,21 +98,6 @@ export const searchIndividuals = async (searchQuery: string): Promise<Individual
     return individuals;
 };
 
-export const getIndividualByName = async (name: string): Promise<Individual | null> => {
-    const q = query(collection(db, 'individuals'), where('name', '==', name), limit(1));
-    const snapshot = await getDocs(q);
-    if (snapshot.empty) {
-        return null;
-    }
-    const doc = snapshot.docs[0];
-    return { id: doc.id, ...doc.data() } as Individual;
-};
-
-export const updateIndividual = async (id: string, data: Partial<Individual>): Promise<void> => {
-    const individualRef = doc(db, 'individuals', id);
-    await updateDoc(individualRef, data);
-};
-
 export const searchVehicles = async (searchQuery: string): Promise<Vehicle[]> => {
     if (!searchQuery) return [];
     const vehiclesRef = collection(db, 'vehicles');
@@ -155,22 +120,6 @@ export const searchVehicles = async (searchQuery: string): Promise<Vehicle[]> =>
 
     return Array.from(vehiclesMap.values());
 };
-
-export const getVehiclesByOwner = async (ownerName: string): Promise<Vehicle[]> => {
-    const q = query(collection(db, 'vehicles'), where('owner', '==', ownerName));
-    const snapshot = await getDocs(q);
-    const vehicles: Vehicle[] = [];
-    snapshot.forEach((doc) => {
-        vehicles.push({ id: doc.id, ...doc.data() } as Vehicle);
-    });
-    return vehicles;
-};
-
-export const updateVehicle = async (id: string, data: Partial<Vehicle>): Promise<void> => {
-    const vehicleRef = doc(db, 'vehicles', id);
-    await updateDoc(vehicleRef, data);
-};
-
 
 // Comms Data
 export const getComms = (callback: (data: Comm[]) => void): Unsubscribe => {

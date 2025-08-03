@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
@@ -10,7 +11,7 @@ interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<void>;
-  signup: (name: string, email: string, pass: string, role: 'user' | 'civilian' | 'dispatch') => Promise<void>;
+  signup: (name: string, email: string, pass: string, role: 'user' | 'dispatch') => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -65,7 +66,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const signup = async (name: string, email: string, pass: string, role: 'user' | 'civilian' | 'dispatch') => {
+  const signup = async (name: string, email: string, pass: string, role: 'user' | 'dispatch') => {
     try {
       const existingUser = await findUserByEmail(email);
       if (existingUser) {

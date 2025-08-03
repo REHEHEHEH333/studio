@@ -13,7 +13,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Spinner } from '@/components/ui/spinner';
 
 const VALID_KEYS = {
-  "HTKI1": "civilian",
   "HTKI2": "user",
   "HTKI3": "dispatch",
 };

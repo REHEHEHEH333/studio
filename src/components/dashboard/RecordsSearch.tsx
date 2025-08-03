@@ -7,12 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Database, User, Car, Search, ChevronsRight, Shield, FileText } from 'lucide-react';
-import { searchIndividuals, searchVehicles, getVehiclesByOwner } from '@/lib/firestore';
+import { Database, User, Car, Search } from 'lucide-react';
+import { searchIndividuals, searchVehicles } from '@/lib/firestore';
 import type { Individual, Vehicle } from '@/types';
 import { Badge } from '../ui/badge';
 import { Spinner } from '../ui/spinner';
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '../ui/collapsible';
 
 export function RecordsSearch() {
   const [query, setQuery] = useState('');
@@ -20,15 +19,10 @@ export function RecordsSearch() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
-  const [expandedIndividual, setExpandedIndividual] = useState<string | null>(null);
-  const [associatedVehicles, setAssociatedVehicles] = useState<Vehicle[]>([]);
-  const [loadingVehicles, setLoadingVehicles] = useState(false);
 
   const handleSearch = async () => {
     setLoading(true);
     setSearched(true);
-    setExpandedIndividual(null);
-    setAssociatedVehicles([]);
     try {
         const [indResults, vehResults] = await Promise.all([
             searchIndividuals(query),
@@ -40,19 +34,6 @@ export function RecordsSearch() {
         console.error(e)
     } finally {
         setLoading(false);
-    }
-  };
-
-  const handleIndividualToggle = async (individualId: string, individualName: string) => {
-    if (expandedIndividual === individualId) {
-      setExpandedIndividual(null);
-      setAssociatedVehicles([]);
-    } else {
-      setExpandedIndividual(individualId);
-      setLoadingVehicles(true);
-      const vehicles = await getVehiclesByOwner(individualName);
-      setAssociatedVehicles(vehicles);
-      setLoadingVehicles(false);
     }
   };
   
@@ -105,7 +86,6 @@ export function RecordsSearch() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[24px]"></TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>DOB</TableHead>
                     <TableHead>License</TableHead>
@@ -113,81 +93,17 @@ export function RecordsSearch() {
                 </TableHeader>
                 <TableBody>
                   {loading ? (
-                    <TableRow><TableCell colSpan={4} className="text-center"><Spinner/></TableCell></TableRow>
+                    <TableRow><TableCell colSpan={3} className="text-center"><Spinner/></TableCell></TableRow>
                   ) : individuals.length > 0 ? (
                     individuals.map(ind => (
-                      <Collapsible asChild key={ind.id} open={expandedIndividual === ind.id} onOpenChange={() => handleIndividualToggle(ind.id, ind.name)}>
-                        <>
-                          <TableRow className="cursor-pointer">
-                            <TableCell>
-                                <CollapsibleTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-6 w-6">
-                                        <ChevronsRight className={`h-4 w-4 transition-transform ${expandedIndividual === ind.id ? 'rotate-90' : ''}`} />
-                                    </Button>
-                                </CollapsibleTrigger>
-                            </TableCell>
+                        <TableRow key={ind.id}>
                             <TableCell>{ind.name}</TableCell>
                             <TableCell>{ind.dob}</TableCell>
                             <TableCell><Badge variant={getLicenseStatusVariant(ind.license_status)}>{ind.license_status}</Badge></TableCell>
-                          </TableRow>
-                          <CollapsibleContent asChild>
-                            <tr>
-                                <td colSpan={4} className="p-0">
-                                    <div className="p-4 bg-muted/50 space-y-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div>
-                                                <h4 className="font-semibold text-xs text-muted-foreground mb-1">ADDRESS</h4>
-                                                <p className="text-sm">{ind.address}</p>
-                                            </div>
-                                            <div>
-                                                <h4 className="font-semibold text-xs text-muted-foreground mb-1">GUN LICENSE</h4>
-                                                <p className="text-sm">{ind.gunLicenseStatus || 'N/A'}</p>
-                                            </div>
-                                            <div>
-                                                <h4 className="font-semibold text-xs text-muted-foreground mb-1">INSURANCE</h4>
-                                                <p className="text-sm">{ind.insuranceStatus || 'N/A'}</p>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h4 className="font-semibold text-xs text-muted-foreground mb-2">REGISTERED FIREARMS</h4>
-                                            {ind.guns && ind.guns.length > 0 ? (
-                                                <ul className="list-disc list-inside text-sm space-y-1">
-                                                    {ind.guns.map((gun, i) => <li key={i}>{gun}</li>)}
-                                                </ul>
-                                            ) : <p className="text-sm text-muted-foreground">None on record.</p>}
-                                        </div>
-                                        <div>
-                                            <h4 className="font-semibold text-xs text-muted-foreground mb-2">ASSOCIATED VEHICLES</h4>
-                                            {loadingVehicles ? <Spinner size="small" /> : associatedVehicles.length > 0 ? (
-                                                <Table>
-                                                    <TableHeader>
-                                                        <TableRow>
-                                                            <TableHead>Plate</TableHead>
-                                                            <TableHead>Model</TableHead>
-                                                            <TableHead>Registration</TableHead>
-                                                        </TableRow>
-                                                    </TableHeader>
-                                                    <TableBody>
-                                                        {associatedVehicles.map(v => (
-                                                            <TableRow key={v.id}>
-                                                                <TableCell>{v.plate}</TableCell>
-                                                                <TableCell>{v.model}</TableCell>
-                                                                <TableCell><Badge variant={getRegistrationStatusVariant(v.registration_status)}>{v.registration_status}</Badge></TableCell>
-                                                            </TableRow>
-                                                        ))}
-                                                    </TableBody>
-                                                </Table>
-                                            ) : <p className="text-sm text-muted-foreground">No vehicles on record.</p>}
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                          </CollapsibleContent>
-                        </>
-                      </Collapsible>
+                        </TableRow>
                     ))
                   ) : (
-                    <TableRow><TableCell colSpan={4} className="text-center">{searched ? 'No results found for individuals' : 'Enter a query to search'}</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={3} className="text-center">{searched ? 'No results found for individuals' : 'Enter a query to search'}</TableCell></TableRow>
                   )}
                 </TableBody>
               </Table>
