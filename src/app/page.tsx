@@ -45,6 +45,7 @@ import { IncidentList } from '@/components/dashboard/IncidentList';
 import { RecordsSearch } from '@/components/dashboard/RecordsSearch';
 import { SecureComms } from '@/components/dashboard/SecureComms';
 import { IntelFeed } from '@/components/dashboard/IntelFeed';
+import { AddIncidentForm } from '@/components/dashboard/AddIncidentForm';
 
 export default function DashboardPage() {
   const { user, loading, logout } = useAuth();
@@ -102,8 +103,11 @@ export default function DashboardPage() {
       case 'dispatch':
         return (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div className="col-span-1 lg:col-span-3">
+                <div className="col-span-1 lg:col-span-2">
                     <IncidentList />
+                </div>
+                 <div className="col-span-1 lg:col-span-1">
+                    <AddIncidentForm />
                 </div>
                 <div className="col-span-1 lg:col-span-2 row-start-2">
                     <RecordsSearch />
