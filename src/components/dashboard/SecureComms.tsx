@@ -84,9 +84,11 @@ export function SecureComms() {
                 <div key={comm.id} className="flex flex-col">
                   <div className="flex items-baseline gap-2">
                     <span className="font-bold text-primary">{comm.unit}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {format(comm.timestamp.toDate(), 'HH:mm:ss')}
-                    </span>
+                    {comm.timestamp && (
+                      <span className="text-xs text-muted-foreground">
+                        {format(comm.timestamp.toDate(), 'HH:mm:ss')}
+                      </span>
+                    )}
                   </div>
                   <p className="text-sm">{comm.message}</p>
                 </div>
