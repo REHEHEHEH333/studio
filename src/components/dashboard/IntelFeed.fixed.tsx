@@ -1,13 +1,9 @@
-git add .
-git commit -m "Remove AI dependencies and simplify IntelFeed component"
-git push origin master
 'use client';
 
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { FileText } from 'lucide-react';
 import { Separator } from '../ui/separator';
 
@@ -62,7 +58,6 @@ export function IntelFeed() {
           <FileText className="h-5 w-5" />
           Communication Log
         </CardTitle>
-        <CardDescription>Log and review radio communications</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Textarea
