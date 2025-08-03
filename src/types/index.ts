@@ -6,6 +6,7 @@ export interface UserProfile {
   email: string;
   name: string;
   role: 'commissioner' | 'police' | 'fd' | 'dispatch';
+  callSign?: string;
   password?: string; // Insecure: For demonstration only
 }
 

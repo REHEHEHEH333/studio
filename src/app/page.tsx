@@ -38,7 +38,8 @@ import {
   Settings,
   BrainCircuit,
   User as UserIcon,
-  Home
+  Home,
+  RadioTower
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { IncidentList } from '@/components/dashboard/IncidentList';
@@ -125,6 +126,40 @@ export default function DashboardPage() {
   const renderSidebarMenu = () => {
     switch(user.role) {
       case 'commissioner':
+        return (
+          <SidebarMenu>
+            <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => handleMenuClick('dashboard')} isActive={activePage === 'dashboard'} tooltip="Dashboard">
+                    <LayoutDashboard />
+                    Dashboard
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton tooltip="Active Incidents">
+                <Siren />
+                Active Incidents
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton tooltip="Records">
+                <Database />
+                Records
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton tooltip="Comms">
+                <MessageSquare />
+                Comms
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+             <SidebarMenuItem>
+              <SidebarMenuButton tooltip="Intel Feed">
+                <BrainCircuit />
+                Intel Feed
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        );
       case 'police':
       case 'fd':
         return (
@@ -188,6 +223,12 @@ export default function DashboardPage() {
                     Comms
                 </SidebarMenuButton>
                 </SidebarMenuItem>
+                 <SidebarMenuItem>
+                    <SidebarMenuButton onClick={() => handleMenuClick('admin')} tooltip="Unit Management">
+                        <RadioTower />
+                        Unit Management
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
             </SidebarMenu>
         );
         default:
@@ -231,7 +272,10 @@ export default function DashboardPage() {
                   <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col items-start">
-                    <span className="hidden md:inline">{user.name}</span>
+                    <span className="hidden md:inline">
+                      {user.name}
+                      {user.callSign && <span className="text-muted-foreground ml-2 font-mono text-xs">{user.callSign}</span>}
+                    </span>
                     <span className="hidden md:inline text-xs text-muted-foreground capitalize">{user.role}</span>
                 </div>
                 <ChevronDown className="h-4 w-4 hidden md:inline"/>
@@ -251,7 +295,7 @@ export default function DashboardPage() {
                 <DropdownMenuItem asChild>
                   <Link href="/admin">
                     <Shield className="mr-2 h-4 w-4" />
-                    <span>Admin</span>
+                    <span>Admin Panel</span>
                   </Link>
                 </DropdownMenuItem>
               )}

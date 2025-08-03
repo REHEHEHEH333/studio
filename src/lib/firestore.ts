@@ -45,6 +45,11 @@ export const updateUserRole = async (uid: string, role: UserProfile['role']): Pr
   await updateDoc(userRef, { role });
 };
 
+export const updateUserCallSign = async (uid: string, callSign: string): Promise<void> => {
+  const userRef = doc(db, 'users', uid);
+  await updateDoc(userRef, { callSign });
+};
+
 
 export const isFirstUser = async (): Promise<boolean> => {
   const usersCollection = collection(db, 'users');
