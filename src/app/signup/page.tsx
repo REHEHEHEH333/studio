@@ -12,7 +12,11 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Spinner } from '@/components/ui/spinner';
 
-const SECRET_KEY = "HTKI2";
+const VALID_KEYS = {
+  "HTKI1": "civilian",
+  "HTKI2": "user",
+  "HTKI3": "dispatch",
+};
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -36,7 +40,9 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (secretKey !== SECRET_KEY) {
+    const role = VALID_KEYS[secretKey as keyof typeof VALID_KEYS];
+
+    if (!role) {
       toast({
         title: 'Invalid Secret Key',
         description: 'The provided secret key is incorrect. Please contact your administrator.',
@@ -45,7 +51,7 @@ export default function SignupPage() {
       return;
     }
     setIsLoading(true);
-    await signup(name, email, password);
+    await signup(name, email, password, role);
     setIsLoading(false);
   };
 

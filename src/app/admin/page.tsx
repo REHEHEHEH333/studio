@@ -46,7 +46,7 @@ export default function AdminPage() {
     }
   };
 
-  const handleRoleChange = async (uid: string, newRole: 'commissioner' | 'user') => {
+  const handleRoleChange = async (uid: string, newRole: UserProfile['role']) => {
     try {
       await updateUserRole(uid, newRole);
       setUsers(users.map(u => u.uid === uid ? { ...u, role: newRole } : u));
@@ -99,7 +99,7 @@ export default function AdminPage() {
                     <TableCell>
                       <Select
                         value={u.role}
-                        onValueChange={(newRole: 'commissioner' | 'user') => handleRoleChange(u.uid, newRole)}
+                        onValueChange={(newRole: UserProfile['role']) => handleRoleChange(u.uid, newRole)}
                         disabled={u.uid === user.uid}
                       >
                         <SelectTrigger className="w-[180px]">
@@ -108,6 +108,8 @@ export default function AdminPage() {
                         <SelectContent>
                           <SelectItem value="user">User</SelectItem>
                           <SelectItem value="commissioner">Commissioner</SelectItem>
+                          <SelectItem value="civilian">Civilian</SelectItem>
+                          <SelectItem value="dispatch">Dispatch</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>

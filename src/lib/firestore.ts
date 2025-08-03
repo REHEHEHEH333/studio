@@ -38,7 +38,7 @@ export const getAllUsers = async (): Promise<UserProfile[]> => {
   return users;
 };
 
-export const updateUserRole = async (uid: string, role: 'commissioner' | 'user'): Promise<void> => {
+export const updateUserRole = async (uid: string, role: UserProfile['role']): Promise<void> => {
   const userRef = doc(db, 'users', uid);
   await updateDoc(userRef, { role });
 };

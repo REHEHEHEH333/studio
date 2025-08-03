@@ -10,7 +10,7 @@ interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<void>;
-  signup: (name: string, email: string, pass: string) => Promise<void>;
+  signup: (name: string, email: string, pass: string, role: 'user' | 'civilian' | 'dispatch') => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const signup = async (name: string, email: string, pass: string) => {
+  const signup = async (name: string, email: string, pass: string, role: 'user' | 'civilian' | 'dispatch') => {
     try {
       const existingUser = await findUserByEmail(email);
       if (existingUser) {
@@ -73,16 +73,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
 
       const firstUser = await isFirstUser();
-      const role = firstUser ? 'commissioner' : 'user';
+      const finalRole = firstUser ? 'commissioner' : role;
 
-      const newUserProfile: Omit<UserProfile, 'uid'> = { name, email, role, password: pass };
+      const newUserProfile: Omit<UserProfile, 'uid'> = { name, email, role: finalRole, password: pass };
       const newUserId = await createUserProfile(newUserProfile);
       const userProfile = { uid: newUserId, ...newUserProfile };
       setUser(userProfile);
       localStorage.setItem(USER_SESSION_KEY, JSON.stringify(userProfile));
       router.push('/');
 
-      if (role === 'commissioner') {
+      if (finalRole === 'commissioner') {
         toast({
             title: "Welcome, Commissioner!",
             description: "You have been assigned the commissioner role as the first user.",
