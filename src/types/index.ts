@@ -5,6 +5,7 @@ export interface UserProfile {
   email: string;
   name: string;
   role: 'commissioner' | 'user';
+  password?: string; // Insecure: For demonstration only
 }
 
 export interface Incident {
@@ -25,7 +26,7 @@ export interface Individual {
 }
 
 export interface Vehicle {
-  id: string;
+  id:string;
   plate: string;
   model: string;
   owner: string;

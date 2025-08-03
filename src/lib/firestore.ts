@@ -1,10 +1,11 @@
 import { db } from './firebase';
-import { collection, doc, getDoc, setDoc, getDocs, query, where, orderBy, limit, onSnapshot, Unsubscribe } from 'firebase/firestore';
+import { collection, doc, getDoc, setDoc, getDocs, query, where, orderBy, limit, onSnapshot, Unsubscribe, addDoc } from 'firebase/firestore';
 import type { UserProfile, Incident, Individual, Vehicle, Comm } from '@/types';
 
 // User Management
-export const createUserProfile = async (uid: string, data: Omit<UserProfile, 'uid'>): Promise<void> => {
-  await setDoc(doc(db, 'users', uid), data);
+export const createUserProfile = async (data: Omit<UserProfile, 'uid'>): Promise<string> => {
+  const docRef = await addDoc(collection(db, 'users'), data);
+  return docRef.id;
 };
 
 export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
@@ -15,6 +16,17 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
   }
   return null;
 };
+
+export const findUserByEmail = async (email: string): Promise<UserProfile | null> => {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('email', '==', email), limit(1));
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+        return null;
+    }
+    const userDoc = querySnapshot.docs[0];
+    return { uid: userDoc.id, ...userDoc.data() } as UserProfile;
+}
 
 export const isFirstUser = async (): Promise<boolean> => {
   const usersCollection = collection(db, 'users');
