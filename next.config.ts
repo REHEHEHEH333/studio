@@ -1,12 +1,10 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
   output: 'export',
-  basePath: '',
-  distDir: '.next',
   images: {
-    unoptimized: true, // Required for static exports
+    unoptimized: true,
+    disableStaticImages: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -22,7 +20,14 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Add any other configurations you need here
+  experimental: {
+    // Disable server actions to prevent build hanging
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  productionBrowserSourceMaps: false,
+  generateEtags: false,
 };
 
 export default nextConfig;
