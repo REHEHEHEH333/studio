@@ -1,14 +1,12 @@
-import type {NextConfig} from 'next';
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  output: 'export',
+  basePath: '',
+  distDir: '.next',
   images: {
+    unoptimized: true, // Required for static exports
     remotePatterns: [
       {
         protocol: 'https',
@@ -18,6 +16,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  // Add any other configurations you need here
 };
 
 export default nextConfig;

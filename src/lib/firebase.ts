@@ -1,13 +1,14 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
+// Use environment variables for Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBMwPiKa1QtFfefKkpiXTKvLcOGhnkeaSU",
-  authDomain: "responseready-mdt.firebaseapp.com",
-  projectId: "responseready-mdt",
-  storageBucket: "responseready-mdt.firebasestorage.app",
-  messagingSenderId: "470276407978",
-  appId: "1:470276407978:web:40d1f8a80473821c3e06d3",
+  apiKey: process.env.NEXT_PUBLIC_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_APP_ID,
 };
 
 // Initialize Firebase
