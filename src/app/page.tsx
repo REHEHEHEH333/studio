@@ -81,7 +81,8 @@ export default function DashboardPage() {
   const renderDashboard = () => {
     switch (user.role) {
       case 'commissioner':
-      case 'user':
+      case 'police':
+      case 'fd':
         return (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <div className="col-span-1 lg:col-span-3">
@@ -120,7 +121,8 @@ export default function DashboardPage() {
   const renderSidebarMenu = () => {
     switch(user.role) {
       case 'commissioner':
-      case 'user':
+      case 'police':
+      case 'fd':
         return (
           <SidebarMenu>
             <SidebarMenuItem>

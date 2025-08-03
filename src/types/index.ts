@@ -5,7 +5,7 @@ export interface UserProfile {
   uid: string;
   email: string;
   name: string;
-  role: 'commissioner' | 'user' | 'dispatch';
+  role: 'commissioner' | 'police' | 'fd' | 'dispatch';
   password?: string; // Insecure: For demonstration only
 }
 

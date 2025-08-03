@@ -13,7 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Spinner } from '@/components/ui/spinner';
 
 const VALID_KEYS = {
-  "HTKI2": "user",
+  "HTKI1": "police",
+  "HTKI2": "fd",
   "HTKI3": "dispatch",
 };
 
@@ -50,7 +51,7 @@ export default function SignupPage() {
       return;
     }
     setIsLoading(true);
-    await signup(name, email, password, role);
+    await signup(name, email, password, role as 'police' | 'fd' | 'dispatch');
     setIsLoading(false);
   };
 

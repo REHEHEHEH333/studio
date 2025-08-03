@@ -108,7 +108,8 @@ export default function AdminPage() {
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="police">Police</SelectItem>
+                          <SelectItem value="fd">FD</SelectItem>
                           <SelectItem value="commissioner">Commissioner</SelectItem>
                           <SelectItem value="dispatch">Dispatch</SelectItem>
                         </SelectContent>
