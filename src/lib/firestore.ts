@@ -136,13 +136,24 @@ export const updateIndividual = async (id: string, data: Partial<Individual>): P
 export const searchVehicles = async (searchQuery: string): Promise<Vehicle[]> => {
     if (!searchQuery) return [];
     const vehiclesRef = collection(db, 'vehicles');
-    const q = query(vehiclesRef, where('plate', '==', searchQuery.toUpperCase()));
-    const querySnapshot = await getDocs(q);
-    const vehicles: Vehicle[] = [];
-    querySnapshot.forEach((doc) => {
-        vehicles.push({ id: doc.id, ...doc.data() } as Vehicle);
+    // This allows searching by owner name as well as plate
+    const plateQuery = query(vehiclesRef, where('plate', '==', searchQuery.toUpperCase()));
+    const ownerQuery = query(vehiclesRef, where('owner', '>=', searchQuery), where('owner', '<=', searchQuery + '\uf8ff'));
+    
+    const [plateSnapshot, ownerSnapshot] = await Promise.all([
+        getDocs(plateQuery),
+        getDocs(ownerQuery)
+    ]);
+    
+    const vehiclesMap = new Map<string, Vehicle>();
+    plateSnapshot.forEach((doc) => {
+        vehiclesMap.set(doc.id, { id: doc.id, ...doc.data() } as Vehicle);
     });
-    return vehicles;
+    ownerSnapshot.forEach((doc) => {
+        vehiclesMap.set(doc.id, { id: doc.id, ...doc.data() } as Vehicle);
+    });
+
+    return Array.from(vehiclesMap.values());
 };
 
 export const getVehiclesByOwner = async (ownerName: string): Promise<Vehicle[]> => {

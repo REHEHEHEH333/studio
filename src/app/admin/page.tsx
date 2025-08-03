@@ -28,12 +28,14 @@ function EditCivilianDialog({ user }: { user: UserProfile }) {
     async function fetchData() {
       setLoading(true);
       try {
-        const [indData, vehData] = await Promise.all([
-          getIndividualByName(user.name),
-          getVehiclesByOwner(user.name)
-        ]);
-        setIndividual(indData);
-        setVehicles(vehData);
+        if (user.name) {
+          const indData = await getIndividualByName(user.name);
+          setIndividual(indData);
+          if (indData) {
+            const vehData = await getVehiclesByOwner(indData.name);
+            setVehicles(vehData);
+          }
+        }
       } catch (error) {
         console.error("Failed to fetch civilian data:", error);
         toast({ title: "Error", description: "Could not load civilian data.", variant: "destructive" });
@@ -41,8 +43,10 @@ function EditCivilianDialog({ user }: { user: UserProfile }) {
         setLoading(false);
       }
     }
-    fetchData();
-  }, [user.name, toast]);
+    if (user) {
+        fetchData();
+    }
+  }, [user, toast]);
 
   const handleIndividualChange = (field: keyof Individual, value: any) => {
     if (individual) {
@@ -52,7 +56,7 @@ function EditCivilianDialog({ user }: { user: UserProfile }) {
   
   const handleGunChange = (index: number, value: string) => {
     if (individual) {
-      const newGuns = [...individual.guns];
+      const newGuns = [...(individual.guns || [])];
       newGuns[index] = value;
       handleIndividualChange('guns', newGuns);
     }
@@ -60,20 +64,21 @@ function EditCivilianDialog({ user }: { user: UserProfile }) {
 
   const addGun = () => {
     if(individual) {
-      handleIndividualChange('guns', [...individual.guns, '']);
+      handleIndividualChange('guns', [...(individual.guns || []), '']);
     }
   }
 
   const removeGun = (index: number) => {
     if(individual) {
-      const newGuns = individual.guns.filter((_, i) => i !== index);
+      const newGuns = (individual.guns || []).filter((_, i) => i !== index);
       handleIndividualChange('guns', newGuns);
     }
   }
 
   const handleVehicleChange = (index: number, field: keyof Vehicle, value: any) => {
     const newVehicles = [...vehicles];
-    (newVehicles[index] as any)[field] = value;
+    const vehicleToUpdate = { ...newVehicles[index], [field]: value };
+    newVehicles[index] = vehicleToUpdate;
     setVehicles(newVehicles);
   };
 
@@ -82,10 +87,10 @@ function EditCivilianDialog({ user }: { user: UserProfile }) {
       if (individual) {
         await updateIndividual(individual.id, individual);
       }
-      // In a real app, you'd likely have a more robust way to handle vehicle updates
-      // This sequential update is for demonstration.
       for (const vehicle of vehicles) {
-        await updateVehicle(vehicle.id, vehicle);
+        if (vehicle.id) {
+          await updateVehicle(vehicle.id, vehicle);
+        }
       }
       toast({ title: "Success", description: "Civilian information updated." });
     } catch (error) {
@@ -148,13 +153,13 @@ function EditCivilianDialog({ user }: { user: UserProfile }) {
                   <Button variant="ghost" size="sm" onClick={addGun}><PlusCircle className="mr-2 h-4 w-4" />Add</Button>
                 </div>
                 <div className="space-y-2">
-                  {individual.guns.map((gun, index) => (
+                  {(individual.guns || []).map((gun, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <Input value={gun} onChange={(e) => handleGunChange(index, e.target.value)} />
                       <Button variant="destructive" size="icon" onClick={() => removeGun(index)}><Trash2 className="h-4 w-4"/></Button>
                     </div>
                   ))}
-                  {individual.guns.length === 0 && <p className="text-sm text-muted-foreground text-center py-2">No firearms registered.</p>}
+                  {(!individual.guns || individual.guns.length === 0) && <p className="text-sm text-muted-foreground text-center py-2">No firearms registered.</p>}
                 </div>
               </div>
 
@@ -189,12 +194,12 @@ function EditCivilianDialog({ user }: { user: UserProfile }) {
 
             </>
           ) : (
-            <div className="text-center py-8 text-muted-foreground">No individual record found for this user.</div>
+            <div className="text-center py-8 text-muted-foreground">No individual record found for this user. An individual record can be created by seeding the database.</div>
           )}
         </div>
       )}
       <DialogFooter>
-        <Button onClick={handleSaveChanges} disabled={loading}>Save changes</Button>
+        <Button onClick={handleSaveChanges} disabled={loading || !individual}>Save changes</Button>
       </DialogFooter>
     </DialogContent>
   );

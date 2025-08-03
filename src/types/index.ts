@@ -22,7 +22,7 @@ export interface Incident {
 
 export interface Individual {
   id: string;
-  name: string;
+  name:string;
   dob: string;
   address: string;
   license_status: 'Valid' | 'Suspended' | 'Expired';
