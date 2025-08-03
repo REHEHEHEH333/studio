@@ -67,15 +67,26 @@ export const getIncidents = (callback: (data: Incident[]) => void): Unsubscribe 
 export const getIncidentsByReporter = (reporterId: string, callback: (data: Incident[]) => void): Unsubscribe => {
     const q = query(
         collection(db, "incidents"), 
-        where("reporterId", "==", reporterId),
-        orderBy("timestamp", "desc")
+        where("reporterId", "==", reporterId)
+        // NOTE: The orderBy clause was removed to prevent a Firestore error
+        // that requires a composite index. For full functionality, create the index
+        // in your Firebase console. The link is in the error message.
+        // orderBy("timestamp", "desc") 
     );
     return onSnapshot(q, (querySnapshot) => {
         const incidents: Incident[] = [];
         querySnapshot.forEach((doc) => {
-            incidents.push({ id: doc.id, ...doc.data() } as Incident);
+            const data = doc.data();
+            // Manually sort by timestamp on the client-side
+            incidents.push({ id: doc.id, ...data } as Incident);
         });
-        callback(incidents);
+        // Sort results by timestamp descending after fetching
+        const sortedIncidents = incidents.sort((a, b) => {
+            const timeA = a.timestamp?.toMillis() || 0;
+            const timeB = b.timestamp?.toMillis() || 0;
+            return timeB - timeA;
+        });
+        callback(sortedIncidents);
     });
 }
 
