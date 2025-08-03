@@ -64,11 +64,27 @@ export const getIncidents = (callback: (data: Incident[]) => void): Unsubscribe 
     });
 };
 
+export const getIncidentsByReporter = (reporterId: string, callback: (data: Incident[]) => void): Unsubscribe => {
+    const q = query(
+        collection(db, "incidents"), 
+        where("reporterId", "==", reporterId),
+        orderBy("timestamp", "desc")
+    );
+    return onSnapshot(q, (querySnapshot) => {
+        const incidents: Incident[] = [];
+        querySnapshot.forEach((doc) => {
+            incidents.push({ id: doc.id, ...doc.data() } as Incident);
+        });
+        callback(incidents);
+    });
+}
+
 export const addIncident = async (data: {
     unit: string;
     type: string;
     location: string;
     description: string;
+    reporterId: string;
   }): Promise<void> => {
     await addDoc(collection(db, 'incidents'), {
       ...data,
@@ -76,6 +92,12 @@ export const addIncident = async (data: {
       timestamp: serverTimestamp(),
     });
   };
+
+export const updateIncidentStatus = async (incidentId: string, status: Incident['status']): Promise<void> => {
+    const incidentRef = doc(db, 'incidents', incidentId);
+    await updateDoc(incidentRef, { status });
+};
+
 
 // Records Search
 export const searchIndividuals = async (searchQuery: string): Promise<Individual[]> => {

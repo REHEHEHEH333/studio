@@ -16,6 +16,7 @@ export interface Incident {
   status: 'Active' | 'Pending' | 'Resolved';
   timestamp: Timestamp;
   description?: string;
+  reporterId?: string;
 }
 
 export interface Individual {
