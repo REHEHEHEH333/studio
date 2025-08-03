@@ -1,12 +1,14 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BrainCircuit, AlertTriangle, FileText } from 'lucide-react';
+import { BrainCircuit, AlertTriangle, FileText, Volume2 } from 'lucide-react';
 import { summarizeRadioCommunication, type SummarizeRadioCommunicationOutput } from '@/ai/flows/summarize-radio-communication';
+import { textToSpeech } from '@/ai/flows/text-to-speech';
 import { Spinner } from '../ui/spinner';
 import { Separator } from '../ui/separator';
 
@@ -14,6 +16,8 @@ export function IntelFeed() {
   const [text, setText] = useState('');
   const [analysis, setAnalysis] = useState<SummarizeRadioCommunicationOutput | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingAudio, setLoadingAudio] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const handleAnalyze = async () => {
     if (!text) return;
@@ -27,6 +31,24 @@ export function IntelFeed() {
       // You can add a toast notification here for the user
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleListen = async () => {
+    if (!analysis?.summary) return;
+    setLoadingAudio(true);
+    try {
+      const result = await textToSpeech({ text: analysis.summary });
+      if (result.audioDataUri) {
+        if (audioRef.current) {
+          audioRef.current.src = result.audioDataUri;
+          audioRef.current.play();
+        }
+      }
+    } catch (error) {
+      console.error('Text-to-speech failed:', error);
+    } finally {
+      setLoadingAudio(false);
     }
   };
 
@@ -54,8 +76,13 @@ export function IntelFeed() {
           <div className="space-y-4 pt-4">
             <Separator />
             <div>
-              <h3 className="font-semibold flex items-center gap-2 mb-2"><FileText className="h-4 w-4"/>Summary</h3>
-              <p className="text-sm text-muted-foreground">{analysis.summary}</p>
+                <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold flex items-center gap-2"><FileText className="h-4 w-4"/>Summary</h3>
+                    <Button variant="ghost" size="icon" onClick={handleListen} disabled={loadingAudio}>
+                        {loadingAudio ? <Spinner size="small"/> : <Volume2 className="h-4 w-4"/>}
+                    </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">{analysis.summary}</p>
             </div>
             {analysis.alerts && analysis.alerts.length > 0 && (
               <div>
@@ -73,6 +100,7 @@ export function IntelFeed() {
             )}
           </div>
         )}
+        <audio ref={audioRef} className="hidden" />
       </CardContent>
     </Card>
   );

@@ -45,7 +45,7 @@ import { IncidentList } from '@/components/dashboard/IncidentList';
 import { RecordsSearch } from '@/components/dashboard/RecordsSearch';
 import { SecureComms } from '@/components/dashboard/SecureComms';
 import { IntelFeed } from '@/components/dashboard/IntelFeed';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CivilianReport } from '@/components/dashboard/CivilianReport';
 
 export default function DashboardPage() {
   const { user, loading, logout } = useAuth();
@@ -114,16 +114,7 @@ export default function DashboardPage() {
             </div>
         );
         case 'civilian':
-            return (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Welcome, {user.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p>This is your civilian dashboard. There are no active items for you at this time.</p>
-                    </CardContent>
-                </Card>
-            );
+            return <CivilianReport />;
       default:
         return <div>Invalid user role.</div>;
     }

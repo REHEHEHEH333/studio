@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { collection, doc, getDoc, setDoc, getDocs, query, where, orderBy, limit, onSnapshot, Unsubscribe, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDoc, setDoc, getDocs, query, where, orderBy, limit, onSnapshot, Unsubscribe, addDoc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import type { UserProfile, Incident, Individual, Vehicle, Comm } from '@/types';
 
 // User Management
@@ -63,6 +63,19 @@ export const getIncidents = (callback: (data: Incident[]) => void): Unsubscribe 
         callback(incidents);
     });
 };
+
+export const addIncident = async (data: {
+    unit: string;
+    type: string;
+    location: string;
+    description: string;
+  }): Promise<void> => {
+    await addDoc(collection(db, 'incidents'), {
+      ...data,
+      status: 'Pending',
+      timestamp: serverTimestamp(),
+    });
+  };
 
 // Records Search
 export const searchIndividuals = async (searchQuery: string): Promise<Individual[]> => {

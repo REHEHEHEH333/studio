@@ -15,6 +15,7 @@ export interface Incident {
   location: string;
   status: 'Active' | 'Pending' | 'Resolved';
   timestamp: Timestamp;
+  description?: string;
 }
 
 export interface Individual {
