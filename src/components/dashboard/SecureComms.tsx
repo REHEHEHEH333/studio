@@ -1,17 +1,25 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessageSquare } from 'lucide-react';
-import { getComms } from '@/lib/firestore';
+import { MessageSquare, Send } from 'lucide-react';
+import { getComms, addComm } from '@/lib/firestore';
 import type { Comm } from '@/types';
 import { format } from 'date-fns';
 import { Skeleton } from '../ui/skeleton';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
 
 export function SecureComms() {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [comms, setComms] = useState<Comm[]>([]);
   const [loading, setLoading] = useState(true);
+  const [newMessage, setNewMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,6 +38,27 @@ export function SecureComms() {
         }
     }
   }, [comms]);
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !user) return;
+    setIsSending(true);
+    try {
+      await addComm({
+        unit: user.name, // Or a specific unit ID if available
+        message: newMessage,
+      });
+      setNewMessage('');
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      toast({
+        title: "Error",
+        description: "Could not send message.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   return (
     <Card className="h-full flex flex-col">
@@ -68,6 +97,21 @@ export function SecureComms() {
           </div>
         </ScrollArea>
       </CardContent>
+      <CardFooter>
+        <div className="flex w-full items-center space-x-2">
+            <Input
+                type="text"
+                placeholder="Type your message..."
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                disabled={isSending}
+            />
+            <Button onClick={handleSendMessage} disabled={isSending || !newMessage.trim()}>
+                <Send className="h-4 w-4" />
+            </Button>
+        </div>
+      </CardFooter>
     </Card>
   );
 }
