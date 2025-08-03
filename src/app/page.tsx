@@ -33,7 +33,8 @@ import {
   MessageSquare, 
   Shield, 
   LogOut,
-  ChevronDown
+  ChevronDown,
+  Settings
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { IncidentList } from '@/components/dashboard/IncidentList';
@@ -113,16 +114,6 @@ export default function DashboardPage() {
                 Comms
               </SidebarMenuButton>
             </SidebarMenuItem>
-            {user.role === 'commissioner' && (
-              <SidebarMenuItem>
-                <Link href="/admin">
-                  <SidebarMenuButton tooltip="Admin" isActive={activePage === 'admin'}>
-                    <Shield />
-                    Admin
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            )}
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
@@ -156,6 +147,14 @@ export default function DashboardPage() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              {user.role === 'commissioner' && (
+                <Link href="/admin">
+                  <DropdownMenuItem>
+                    <Shield className="mr-2 h-4 w-4" />
+                    <span>Admin</span>
+                  </DropdownMenuItem>
+                </Link>
+              )}
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
