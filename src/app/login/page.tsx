@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
@@ -17,13 +18,14 @@ export default function LoginPage() {
   const { login, user, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  if (authLoading) {
-    return <div className="flex h-screen w-full items-center justify-center"><Spinner size="large" /></div>;
-  }
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.push('/');
+    }
+  }, [user, authLoading, router]);
 
-  if (user) {
-    router.push('/');
-    return null;
+  if (authLoading || user) {
+    return <div className="flex h-screen w-full items-center justify-center"><Spinner size="large" /></div>;
   }
 
   const handleSubmit = async (e: FormEvent) => {
