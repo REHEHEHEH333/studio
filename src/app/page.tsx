@@ -82,6 +82,25 @@ export default function DashboardPage() {
   const renderDashboard = () => {
     switch (user.role) {
       case 'commissioner':
+        return (
+            <div className="space-y-6">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="col-span-1 lg:col-span-3">
+                        <IncidentList />
+                    </div>
+                    <div className="col-span-1 lg:col-span-2 row-start-2">
+                        <RecordsSearch />
+                    </div>
+                    <div className="col-span-1 lg:col-span-1 row-start-3 lg:row-start-2">
+                        <SecureComms />
+                    </div>
+                    <div className="col-span-1 lg:col-span-3 row-start-4 lg:row-start-3">
+                        <IntelFeed />
+                    </div>
+                </div>
+                <CivilianReport />
+            </div>
+        )
       case 'user':
         return (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
