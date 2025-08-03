@@ -1,0 +1,14 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // For this demo, we'll allow public read/write access.
+    // In a real application, you should secure your data appropriately.
+    // See: https://firebase.google.com/docs/firestore/security/get-started
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
