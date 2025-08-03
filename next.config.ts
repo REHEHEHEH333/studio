@@ -3,6 +3,7 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   output: 'export',
   images: {
+<<<<<<< HEAD
     unoptimized: true,
     disableStaticImages: true,
     remotePatterns: [
@@ -28,6 +29,11 @@ const nextConfig: NextConfig = {
   },
   productionBrowserSourceMaps: false,
   generateEtags: false,
+=======
+    unoptimized: true, // Required for static exports
+  },
+  // Add other configurations as needed
+>>>>>>> a783f691f37c9da0d871b12baa6655b48d128703
 };
 
 export default nextConfig;
