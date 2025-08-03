@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import { getUserProfile, createUserProfile, isFirstUser, findUserByEmail } from '@/lib/firestore';
+import { findUserByEmail, createUserProfile } from '@/lib/firestore';
 import type { UserProfile } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -15,6 +15,10 @@ interface AuthContextType {
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
 
 const USER_SESSION_KEY = 'response-ready-user-session';
 
@@ -43,7 +47,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const userProfile = await findUserByEmail(email);
       // NOTE: This is an insecure password check. In a real application,
       // you should NEVER store or compare plaintext passwords.
-      // This is for demonstration purposes only, as requested.
+      // This is for demonstration purposes only.
       if (userProfile && userProfile.password === pass) {
         setUser(userProfile);
         localStorage.setItem(USER_SESSION_KEY, JSON.stringify(userProfile));
@@ -68,8 +72,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         throw new Error("An account with this email already exists.");
       }
 
-      const firstUser = await isFirstUser();
-      const role = firstUser ? 'commissioner' : 'user';
+      // For this demo, we'll just assign a 'user' role.
+      // A more robust system might have an admin panel to manage roles.
+      const role = 'user'; 
 
       const newUserProfile: Omit<UserProfile, 'uid'> = { name, email, role, password: pass };
       const newUserId = await createUserProfile(newUserProfile);
