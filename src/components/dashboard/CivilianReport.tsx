@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
@@ -23,7 +23,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Separator } from '../ui/separator';
 
 const reportSchema = z.object({
-  type: z.string().min(1, 'Please select an incident type.'),
+  type: z.string().min(1, 'Incident type is required.'),
   location: z.string().min(3, 'Location is required.'),
   description: z.string().min(10, 'Please provide a detailed description.'),
 });
@@ -165,22 +165,11 @@ export function CivilianReport() {
                 name="type"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Incident Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormLabel>Incident Type</FormLabel>
                         <FormControl>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select an incident type" />
-                        </SelectTrigger>
+                            <Input placeholder="e.g., Suspicious Activity, Traffic Complaint" {...field} />
                         </FormControl>
-                        <SelectContent>
-                        <SelectItem value="Suspicious Activity">Suspicious Activity</SelectItem>
-                        <SelectItem value="Traffic Complaint">Traffic Complaint</SelectItem>
-                        <SelectItem value="Noise Complaint">Noise Complaint</SelectItem>
-                        <SelectItem value="Minor Accident">Minor Accident</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <FormMessage />
+                        <FormMessage />
                     </FormItem>
                 )}
                 />
@@ -228,3 +217,5 @@ export function CivilianReport() {
     </div>
   );
 }
+
+    

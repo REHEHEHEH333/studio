@@ -1,3 +1,4 @@
+
 import { db } from './firebase';
 import { collection, doc, getDoc, setDoc, getDocs, query, where, orderBy, limit, onSnapshot, Unsubscribe, addDoc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import type { UserProfile, Incident, Individual, Vehicle, Comm } from '@/types';
@@ -68,19 +69,13 @@ export const getIncidentsByReporter = (reporterId: string, callback: (data: Inci
     const q = query(
         collection(db, "incidents"), 
         where("reporterId", "==", reporterId)
-        // NOTE: The orderBy clause was removed to prevent a Firestore error
-        // that requires a composite index. For full functionality, create the index
-        // in your Firebase console. The link is in the error message.
-        // orderBy("timestamp", "desc") 
     );
     return onSnapshot(q, (querySnapshot) => {
         const incidents: Incident[] = [];
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            // Manually sort by timestamp on the client-side
             incidents.push({ id: doc.id, ...data } as Incident);
         });
-        // Sort results by timestamp descending after fetching
         const sortedIncidents = incidents.sort((a, b) => {
             const timeA = a.timestamp?.toMillis() || 0;
             const timeB = b.timestamp?.toMillis() || 0;
@@ -110,11 +105,10 @@ export const updateIncidentStatus = async (incidentId: string, status: Incident[
 };
 
 
-// Records Search
+// Records Search & Management
 export const searchIndividuals = async (searchQuery: string): Promise<Individual[]> => {
     if (!searchQuery) return [];
     const individualsRef = collection(db, 'individuals');
-    // Firestore doesn't support full-text search natively. This is a basic starts-with search.
     const q = query(individualsRef, where('name', '>=', searchQuery), where('name', '<=', searchQuery + '\uf8ff'));
     const querySnapshot = await getDocs(q);
     const individuals: Individual[] = [];
@@ -122,6 +116,21 @@ export const searchIndividuals = async (searchQuery: string): Promise<Individual
         individuals.push({ id: doc.id, ...doc.data() } as Individual);
     });
     return individuals;
+};
+
+export const getIndividualByName = async (name: string): Promise<Individual | null> => {
+    const q = query(collection(db, 'individuals'), where('name', '==', name), limit(1));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+        return null;
+    }
+    const doc = snapshot.docs[0];
+    return { id: doc.id, ...doc.data() } as Individual;
+};
+
+export const updateIndividual = async (id: string, data: Partial<Individual>): Promise<void> => {
+    const individualRef = doc(db, 'individuals', id);
+    await updateDoc(individualRef, data);
 };
 
 export const searchVehicles = async (searchQuery: string): Promise<Vehicle[]> => {
@@ -134,6 +143,21 @@ export const searchVehicles = async (searchQuery: string): Promise<Vehicle[]> =>
         vehicles.push({ id: doc.id, ...doc.data() } as Vehicle);
     });
     return vehicles;
+};
+
+export const getVehiclesByOwner = async (ownerName: string): Promise<Vehicle[]> => {
+    const q = query(collection(db, 'vehicles'), where('owner', '==', ownerName));
+    const snapshot = await getDocs(q);
+    const vehicles: Vehicle[] = [];
+    snapshot.forEach((doc) => {
+        vehicles.push({ id: doc.id, ...doc.data() } as Vehicle);
+    });
+    return vehicles;
+};
+
+export const updateVehicle = async (id: string, data: Partial<Vehicle>): Promise<void> => {
+    const vehicleRef = doc(db, 'vehicles', id);
+    await updateDoc(vehicleRef, data);
 };
 
 
@@ -155,3 +179,5 @@ export const addComm = async (data: { unit: string; message: string }): Promise<
     timestamp: serverTimestamp(),
   });
 };
+
+    

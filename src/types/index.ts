@@ -1,3 +1,4 @@
+
 import type { Timestamp } from 'firebase/firestore';
 
 export interface UserProfile {
@@ -25,6 +26,9 @@ export interface Individual {
   dob: string;
   address: string;
   license_status: 'Valid' | 'Suspended' | 'Expired';
+  gunLicenseStatus: 'Valid' | 'Expired' | 'None';
+  insuranceStatus: 'Valid' | 'Expired' | 'None';
+  guns: string[];
 }
 
 export interface Vehicle {
@@ -41,3 +45,5 @@ export interface Comm {
   message: string;
   timestamp: Timestamp;
 }
+
+    
