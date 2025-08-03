@@ -9,13 +9,23 @@ config();
 //    Firebase Console > Project Settings > Service accounts > Generate new private key
 // 2. Save it in the root of your project as 'serviceAccountKey.json'.
 // 3. Make sure this file is in your .gitignore to keep it private.
-const serviceAccount = require('../../serviceAccountKey.json');
+try {
+  const serviceAccount = require('../../serviceAccountKey.json');
+  // Initialize Firebase Admin SDK
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  });
+} catch (error: any) {
+    if (error.code === 'MODULE_NOT_FOUND') {
+        console.error('\x1b[31m%s\x1b[0m', 'Error: `serviceAccountKey.json` not found.');
+        console.error('Please download it from your Firebase project settings and place it in the root directory.');
+    } else {
+        console.error('Error initializing Firebase Admin SDK:', error);
+    }
+    process.exit(1);
+}
 
-// Initialize Firebase Admin SDK
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-});
 
 const db = admin.firestore();
 
@@ -60,33 +70,16 @@ async function seedCollection(collectionName: string, data: any[], clear: boolea
     });
     await batch.commit();
     console.log(`Cleared ${collectionName}.`);
-
-    // Add new documents
-    for (const item of data) {
-      await collectionRef.add(item);
-    }
-    console.log(`Seeded ${data.length} documents into ${collectionName}.`);
   }
-}
 
-async function setCommissionerByEmail(email: string) {
-    try {
-        const usersRef = db.collection('users');
-        const q = usersRef.where('email', '==', email);
-        const snapshot = await q.get();
-
-        if (snapshot.empty) {
-            console.log(`No user found with email ${email}. Please ensure the user has signed up.`);
-            return;
-        }
-        
-        const userDoc = snapshot.docs[0];
-        await userDoc.ref.update({ role: 'commissioner' });
-        console.log(`User ${userDoc.id} (${email}) has been updated to commissioner.`);
-
-    } catch (error) {
-        console.error(`Error setting commissioner role for user with email ${email}:`, error);
-    }
+  // Add new documents
+  const batch = db.batch();
+  for (const item of data) {
+    const docRef = collectionRef.doc();
+    batch.set(docRef, item);
+  }
+  await batch.commit();
+  console.log(`Seeded ${data.length} documents into ${collectionName}.`);
 }
 
 
@@ -97,9 +90,7 @@ async function main() {
   await seedCollection('vehicles', vehiclesData);
   await seedCollection('comms', commsData);
   
-  // Set the specific user to be a commissioner by their email
-  await setCommissionerByEmail('harleyphillips331@gmail.com');
-
+  console.log('NOTE: The first user to sign up will automatically be assigned the "commissioner" role.');
   console.log('Database seeding complete.');
 }
 

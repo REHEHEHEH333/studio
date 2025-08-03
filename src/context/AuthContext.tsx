@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import { findUserByEmail, createUserProfile } from '@/lib/firestore';
+import { findUserByEmail, createUserProfile, isFirstUser } from '@/lib/firestore';
 import type { UserProfile } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -72,9 +72,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         throw new Error("An account with this email already exists.");
       }
 
-      // For this demo, we'll just assign a 'user' role.
-      // A more robust system might have an admin panel to manage roles.
-      const role = 'user'; 
+      const firstUser = await isFirstUser();
+      const role = firstUser ? 'commissioner' : 'user';
 
       const newUserProfile: Omit<UserProfile, 'uid'> = { name, email, role, password: pass };
       const newUserId = await createUserProfile(newUserProfile);
@@ -82,6 +81,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(userProfile);
       localStorage.setItem(USER_SESSION_KEY, JSON.stringify(userProfile));
       router.push('/');
+
+      if (role === 'commissioner') {
+        toast({
+            title: "Welcome, Commissioner!",
+            description: "You have been assigned the commissioner role as the first user.",
+        });
+      }
+
     } catch (error: any) {
       console.error("Signup error:", error);
       toast({
