@@ -52,7 +52,14 @@ export default function UnitManagementPage() {
 
   const handleRoleChange = async (uid: string, newRole: UserProfile['role']) => {
     // Role changing is a commissioner-only action
-    if (user?.role !== 'commissioner') return;
+    if (user?.role !== 'commissioner') {
+        toast({
+            title: "Permission Denied",
+            description: "Only commissioners can change user roles.",
+            variant: "destructive",
+        });
+        return;
+    }
 
     try {
       await updateUserRole(uid, newRole);
@@ -76,6 +83,15 @@ export default function UnitManagementPage() {
   };
 
   const handleSaveCallSign = async (uid: string, callSign: string | undefined) => {
+    // Dispatchers and commissioners can manage call signs
+    if (!user || !['commissioner', 'dispatch'].includes(user.role)) {
+        toast({
+            title: "Permission Denied",
+            description: "You do not have permission to change call signs.",
+            variant: "destructive",
+        });
+        return;
+    }
     try {
       await updateUserCallSign(uid, callSign || '');
        toast({
