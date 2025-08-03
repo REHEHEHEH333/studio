@@ -118,6 +118,7 @@ export default function UnitManagementPage() {
   }
   
   const isCommissioner = user.role === 'commissioner';
+  const canManageCallSigns = ['commissioner', 'dispatch'].includes(user.role);
 
   return (
     <div className="p-4 lg:p-6">
@@ -173,8 +174,9 @@ export default function UnitManagementPage() {
                             value={u.callSign || ''}
                             onChange={(e) => handleCallSignChange(u.uid, e.target.value)}
                             placeholder="e.g., 2B41"
+                            disabled={!canManageCallSigns}
                           />
-                           <Button size="icon" variant="ghost" onClick={() => handleSaveCallSign(u.uid, u.callSign)}>
+                           <Button size="icon" variant="ghost" onClick={() => handleSaveCallSign(u.uid, u.callSign)} disabled={!canManageCallSigns}>
                              <Save className="h-4 w-4"/>
                            </Button>
                         </div>
