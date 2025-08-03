@@ -46,25 +46,39 @@ const commsData = [
   { unit: '1A23', message: 'On scene, requesting medical.', timestamp: new Date(Date.now() - 1000 * 60 * 1) },
 ];
 
-async function seedCollection(collectionName: string, data: any[]) {
+async function seedCollection(collectionName: string, data: any[], clear: boolean = true) {
   console.log(`Seeding ${collectionName}...`);
   const collectionRef = db.collection(collectionName);
   
-  // Clear existing documents
-  const snapshot = await collectionRef.get();
-  const batch = db.batch();
-  snapshot.docs.forEach(doc => {
-    batch.delete(doc.ref);
-  });
-  await batch.commit();
-  console.log(`Cleared ${collectionName}.`);
+  if (clear) {
+    // Clear existing documents
+    const snapshot = await collectionRef.get();
+    const batch = db.batch();
+    snapshot.docs.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+    await batch.commit();
+    console.log(`Cleared ${collectionName}.`);
 
-  // Add new documents
-  for (const item of data) {
-    await collectionRef.add(item);
+    // Add new documents
+    for (const item of data) {
+      await collectionRef.add(item);
+    }
+    console.log(`Seeded ${data.length} documents into ${collectionName}.`);
   }
-  console.log(`Seeded ${data.length} documents into ${collectionName}.`);
 }
+
+async function setCommissioner(userId: string) {
+    try {
+        const userRef = db.collection('users').doc(userId);
+        await userRef.update({ role: 'commissioner' });
+        console.log(`User ${userId} has been updated to commissioner.`);
+    } catch (error) {
+        console.error(`Error setting commissioner role for user ${userId}:`, error);
+        console.log(`Note: The user with ID ${userId} may not exist yet. Please sign up with this user first, then re-run the script or manually set the role in Firestore.`);
+    }
+}
+
 
 async function main() {
   console.log('Starting database seed...');
@@ -72,6 +86,12 @@ async function main() {
   await seedCollection('individuals', individualsData);
   await seedCollection('vehicles', vehiclesData);
   await seedCollection('comms', commsData);
+  
+  // Set the specific user to be a commissioner
+  // IMPORTANT: Replace 'obY34xqVaFYzrgPfOB50' with the actual document ID of the user
+  // in your Firestore 'users' collection after they have signed up.
+  await setCommissioner('obY34xqVaFYzrgPfOB50');
+
   console.log('Database seeding complete.');
 }
 

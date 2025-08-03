@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
 import { 
   SidebarProvider, 
@@ -43,6 +44,7 @@ import { IntelFeed } from '@/components/dashboard/IntelFeed';
 export default function DashboardPage() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
+  const [activePage, setActivePage] = React.useState('dashboard');
 
   React.useEffect(() => {
     if (!loading && !user) {
@@ -61,6 +63,15 @@ export default function DashboardPage() {
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
+  
+  const handleMenuClick = (page: string) => {
+    setActivePage(page);
+    if(page !== 'dashboard') {
+      router.push(`/${page}`);
+    } else {
+      router.push('/');
+    }
+  }
 
   return (
     <SidebarProvider>
@@ -79,10 +90,10 @@ export default function DashboardPage() {
         <SidebarContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Dashboard">
-                <LayoutDashboard />
-                Dashboard
-              </SidebarMenuButton>
+                <SidebarMenuButton onClick={() => handleMenuClick('dashboard')} isActive={activePage === 'dashboard'} tooltip="Dashboard">
+                    <LayoutDashboard />
+                    Dashboard
+                </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton tooltip="Active Incidents">
@@ -104,10 +115,12 @@ export default function DashboardPage() {
             </SidebarMenuItem>
             {user.role === 'commissioner' && (
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Admin">
-                  <Shield />
-                  Admin
-                </SidebarMenuButton>
+                <Link href="/admin">
+                  <SidebarMenuButton tooltip="Admin" isActive={activePage === 'admin'}>
+                    <Shield />
+                    Admin
+                  </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
             )}
           </SidebarMenu>

@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { collection, doc, getDoc, setDoc, getDocs, query, where, orderBy, limit, onSnapshot, Unsubscribe, addDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, setDoc, getDocs, query, where, orderBy, limit, onSnapshot, Unsubscribe, addDoc, updateDoc } from 'firebase/firestore';
 import type { UserProfile, Incident, Individual, Vehicle, Comm } from '@/types';
 
 // User Management
@@ -27,6 +27,22 @@ export const findUserByEmail = async (email: string): Promise<UserProfile | null
     const userDoc = querySnapshot.docs[0];
     return { uid: userDoc.id, ...userDoc.data() } as UserProfile;
 }
+
+export const getAllUsers = async (): Promise<UserProfile[]> => {
+  const usersRef = collection(db, 'users');
+  const querySnapshot = await getDocs(usersRef);
+  const users: UserProfile[] = [];
+  querySnapshot.forEach((doc) => {
+    users.push({ uid: doc.id, ...doc.data() } as UserProfile);
+  });
+  return users;
+};
+
+export const updateUserRole = async (uid: string, role: 'commissioner' | 'user'): Promise<void> => {
+  const userRef = doc(db, 'users', uid);
+  await updateDoc(userRef, { role });
+};
+
 
 export const isFirstUser = async (): Promise<boolean> => {
   const usersCollection = collection(db, 'users');
