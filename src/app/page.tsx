@@ -148,12 +148,12 @@ export default function DashboardPage() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               {user.role === 'commissioner' && (
-                <Link href="/admin">
-                  <DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/admin">
                     <Shield className="mr-2 h-4 w-4" />
                     <span>Admin</span>
-                  </DropdownMenuItem>
-                </Link>
+                  </Link>
+                </DropdownMenuItem>
               )}
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4" />
